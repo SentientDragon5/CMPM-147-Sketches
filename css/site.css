@@ -1,33 +1,44 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #1E1E1E;
+  color: #D4D4D4;
+}
+
 h1, h2 {
   margin: 0;
   padding: 0;
-  /* font-size: 1.2em; */
-  font-weight: lighter;
+  font-weight: 500;
+  color: #61AFEF;
 }
 
 #content {
   width: calc(100% - 30px);
-  margin: 10px;080;
-  padding: 10px;
-  border: solid 1px #808;
-  font-family: sans-serif;
+  margin: 15px;
+  padding: 20px;
+  border: solid 1px #3A3A3A;
+  background-color: #2D2D2D;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .minor-section {
-  margin: 10px;
-  padding: 10px;
-  border: solid 1px #A0A0A0;
-  border-radius: 10px;
+  margin: 15px;
+  padding: 15px;
+  border: solid 1px #555;
+  border-radius: 8px;
+  background-color: #333;
 }
 
 .minor-section h2 {
-  font-size: 1.2em;
+  font-size: 1.3em;
+  color: #61AFEF;
 }
 
 /* Set the image to be responsive */
 .image-wrapper img {
   max-width: 100%;
   height: auto;
+  border-radius: 3px;
 }
 
 /* Set the canvas element to be the full size of the container */
@@ -38,20 +49,43 @@ canvas {
 
 .fullscreen-box {
   display: flex;
-  justify-content: flex-end; /* Aligns the button to the right */
+  justify-content: flex-end;
   margin-top: 0.25em;
 }
 
 .fullscreen-box button {
-  font-size: 0.6em;
+  font-size: 0.7em;
+  background-color: #4C566A;
+  color: #ECEFF4;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.fullscreen-box button:hover {
+  background-color: #5E81AC;
 }
 
 body.is-fullscreen #canvas-container {
-  position: fixed; /* Use 'fixed' instead of 'absolute' to ensure it covers the entire screen */
+  position: fixed;
   top: 0;
-  left: 0; /* Add 'left: 0' to align it properly to the top-left corner */
+  left: 0;
   width: 100vw !important;
   height: 100vh !important;
-  margin: 0; /* Remove any default margins */
-  z-index: 1000; /* Ensure it's above other content */
+  margin: 0;
+  z-index: 1000;
+  background-color: #000; 
 }
+
+a {
+  color: #89B4FA; 
+  text-decoration: none; 
+}
+
+a:hover {
+  text-decoration: underline; 
+}
+
+/* Code Assisted by Gemini */
