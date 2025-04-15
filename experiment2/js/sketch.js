@@ -75,12 +75,19 @@ class Fish {
     this.y = random(height);
     this.size = random(15, 25);
     this.x = width * this.facingLeft + this.size * (this.facingLeft ? 1 : -1);
-    this.speed = random(1, 3) * (this.facingLeft ? -1 : 1);
+    this.baseSpeed = random(1, 3);
+    this.speed = this.baseSpeed * (this.facingLeft ? -1 : 1);
     this.img = loadImage("./img/fish.png");
   }
   update() {
+    let distance = dist(this.x, this.y, mouseX, mouseY);
+
+    let speed_mult = distance < 50 ? (2 * this.size) / 10 : 1;
+    this.speed = this.baseSpeed * speed_mult * (this.facingLeft ? -1 : 1);
+
     this.x += this.speed;
   }
+
   display() {
     push();
     translate(this.x, this.y);
@@ -90,6 +97,7 @@ class Fish {
     image(this.img, -this.size / 2, -this.size / 2, this.size, this.size);
     pop();
   }
+
   offscreen() {
     if (this.speed > 0) {
       return this.x > width + this.size;
