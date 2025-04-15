@@ -7,6 +7,8 @@ let bubble_count = 20;
 let kelp_plural = [];
 let kelp_count = 7;
 
+let fishies = [];
+
 class Kelp {
   constructor(x) {
     this.x = x;
@@ -67,6 +69,36 @@ class Bubble {
   }
 }
 
+class Fish {
+  constructor() {
+    this.facingLeft = random(0, 1) > 0.5;
+    this.y = random(height);
+    this.size = random(15, 25);
+    this.x = width * this.facingLeft + this.size * (this.facingLeft ? 1 : -1);
+    this.speed = random(1, 3) * (this.facingLeft ? -1 : 1);
+    this.img = loadImage("./img/fish.png");
+  }
+  update() {
+    this.x += this.speed;
+  }
+  display() {
+    push();
+    translate(this.x, this.y);
+    if (!this.facingLeft) {
+      scale(-1, 1);
+    }
+    image(this.img, -this.size / 2, -this.size / 2, this.size, this.size);
+    pop();
+  }
+  offscreen() {
+    if (this.speed > 0) {
+      return this.x > width + this.size;
+    } else {
+      return this.x < -this.size;
+    }
+  }
+}
+
 function setup() {
   canvasContainer = $("#canvas-container");
   let canvas = createCanvas(800, 600);
@@ -111,5 +143,18 @@ function draw() {
 
   for (let i = 0; i < kelp_plural.length; i++) {
     kelp_plural[i].display();
+  }
+
+  if (random(1) < 0.01) {
+    fishies.push(new Fish());
+  }
+
+  for (let i = fishies.length - 1; i >= 0; i--) {
+    fishies[i].update();
+    fishies[i].display();
+
+    if (fishies[i].offscreen()) {
+      fishies.splice(i, 1);
+    }
   }
 }
