@@ -47,14 +47,11 @@ function drawGrid(grid) {
       }
 
       if (gridCheck(grid, i, j, "t")) {
-        //placeTile(i,j, 22, 7)
         drawContext(grid, i, j, "t", 0, 0, snowytrees);
       }
       if (gridCheck(grid, i, j, "h")) {
         placeTile(i, j, 26 + (random(2) | 0), random(4) | 0);
       }
-
-      let n = noise(i * noiseScale, j * noiseScale);
     }
   }
 
