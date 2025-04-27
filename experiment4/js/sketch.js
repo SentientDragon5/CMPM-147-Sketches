@@ -2,13 +2,12 @@ var s = function (p) {
   let seed = 0;
 
   let tile_pad = 1;
-  let view_cols = 40;
-  let view_rows = 40;
-  let tile_size = 16;
+  let view_cols = 80;
+  let view_rows = 80;
+  let tile_size = 8;
 
-  let r_noise_scale = 1/12;
-  let g_noise_scale = 1/50;
-  let b_noise_scale = 1/18;
+  let height_noise_scales = [1/12, 1/28, 1/50, 1/100, 1/200];
+  let biome_noise_scale = 1/50;
 
   let camera_offset;
   let camera_velocity;
@@ -79,13 +78,19 @@ var s = function (p) {
         let s_x = i * tile_size; // + w_x % tile_size;
         let s_y = j * tile_size; // + w_y % tile_size;
 
-        let n = p.sampleNoise(i, j);
+        let h = 0;
+        let samples = 4;
+        for (let k=0; k<samples; k++){
+          let k_n = p.sampleNoise(i, j, height_noise_scales[0]);
+          h = h + (k_n -h)/(k+1);
+        }
+        
+        let b_n = p.sampleNoise(i, j, biome_noise_scale);
 
-        let h = n[0];
-        let biome = n[1];
+        //let h = (h_n + b) / 2;
         grid[`${i},${j}`] = { // Use string keys
-          height: n[0],
-          biome: n[1],
+          height: h,
+          biome: b_n,
         };
       }
     }
@@ -123,7 +128,7 @@ var s = function (p) {
           }
         } else if (t < 0.3 || h > 0.85) {
           color = snowColor;
-        } else if ((h < 0.8 && h > 0.6) && (t < 0.5 && t > 0.4) && delta < 0.035){
+        } else if ((h < 0.8 && h > 0.55) && (t < 0.55 && t > 0.4) && delta < 0.035){
           color = forestColor;
         } else if ((delta > 0.035 && h > 0.6) || h > 0.8) {
           color = mountainColor; 
@@ -144,20 +149,11 @@ var s = function (p) {
 
   // sample a 3 channel noise and get back an array of r g b 
   // values betwen 0 and 1
-  p.sampleNoise = function(i, j){
-    let r_n_x = (i + camera_offset.x / tile_size) * r_noise_scale;
-    let r_n_y = (j + camera_offset.y / tile_size) * r_noise_scale;
-
-    let g_n_x = (i + camera_offset.x / tile_size) * g_noise_scale;
-    let g_n_y = (j + camera_offset.y / tile_size) * g_noise_scale;
-    
-    let b_n_x = (i + camera_offset.x / tile_size) * b_noise_scale;
-    let b_n_y = (j + camera_offset.y / tile_size) * b_noise_scale;
-
-    let r = p.noise(r_n_x, r_n_y);
-    let g = p.noise(g_n_x, g_n_y);
-    let b=0;//let b = p.noise(b_n_x, b_n_y);
-    return [r,g,b];
+  p.sampleNoise = function(i, j, noise_scale){
+    let n_x = (i + camera_offset.x / tile_size) * noise_scale;
+    let n_y = (j + camera_offset.y / tile_size) * noise_scale;
+    let n = p.noise(n_x, n_y);
+    return n;
   }
   
   p.reseed = function () {
