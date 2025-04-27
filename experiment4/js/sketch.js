@@ -89,7 +89,7 @@ var s = function (p) {
         }
         
         let t_n = p.sampleNoise(i, j, temperature_noise_scale);
-        let b_n = p.sampleNoise(i, j, biome_noise_scale);
+        let b_n = 0;//p.sampleNoise(i, j, biome_noise_scale);
 
         //let h = (h_n + b) / 2;
         grid[`${i},${j}`] = { // Use string keys
@@ -146,7 +146,7 @@ var s = function (p) {
           }
         } else if ((h < 0.8 && h > 0.55) && (t < 0.55 && t > 0.4) && delta < 0.035){
           color = forestColor;
-        } else if ((delta > 0.035 && h > 0.6) || h > 0.8 || b < 0.1) {
+        } else if ((delta > 0.035 && h > 0.6) || h > 0.8) {
           color = mountainColor; 
         } else if (h < 0.5 || t > 0.9) {
           color = sandColor;
