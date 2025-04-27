@@ -7,7 +7,9 @@ var s = function (p) {
   let tile_size = 8;
 
   let height_noise_scales = [1/12, 1/28, 1/50, 1/100, 1/200];
-  let biome_noise_scale = 1/50;
+  let temperature_noise_scale = 1/50;
+  let biome_noise_scale = 1/60;
+  let water_noise_scale = 1/2;
 
   let camera_offset;
   let camera_velocity;
@@ -31,7 +33,8 @@ var s = function (p) {
     p.drawTilemap();
     
     p.fill(255);
-    p.text("position: " + p.round(camera_offset.x) + " " + p.round(camera_offset.y), 50,50);
+    //p.text("position: " + p.round(camera_offset.x) + " " + p.round(camera_offset.y), 50,50);
+    //p.text("t: " + p.millis(), 50, 100);
   };
 
   p.updateCameraPosition = function () {
@@ -63,7 +66,7 @@ var s = function (p) {
     let warmWater = new p5.Vector(55, 214, 219);
     let warmLowWater = new p5.Vector(44, 199, 160);
     let snowColor = new p5.Vector(228, 240, 247);
-    let snowLowColor = new p5.Vector(207, 219, 232);
+    let snowLowColor = new p5.Vector(217, 224, 242);
     let grassColor = new p5.Vector(109, 219, 90);
     let grassLowColor = new p5.Vector(69, 191, 85);
     let forestColor = new p5.Vector(37, 110, 73);
@@ -85,11 +88,13 @@ var s = function (p) {
           h = h + (k_n -h)/(k+1);
         }
         
+        let t_n = p.sampleNoise(i, j, temperature_noise_scale);
         let b_n = p.sampleNoise(i, j, biome_noise_scale);
 
         //let h = (h_n + b) / 2;
         grid[`${i},${j}`] = { // Use string keys
           height: h,
+          temperature: t_n,
           biome: b_n,
         };
       }
@@ -99,7 +104,8 @@ var s = function (p) {
       for (let j = 0 - tile_pad; j < view_cols + tile_pad; j++) {
         let n = grid[`${i},${j}`]; // Access using string keys
         let h = n.height; // Current pixel height
-        let t = n.biome;
+        let t = n.temperature;
+        let b = n.biome;
         // curvature
         let delta = 0;
         try {
@@ -113,6 +119,9 @@ var s = function (p) {
           delta = neighbors.reduce((sum, neighborHeight) => sum + Math.abs(h - neighborHeight), 0) / neighbors.length;
         } catch (e) {}
 
+        let time = p.millis() /1000;
+        let noise = p.sampleNoise(i + time, j + time, water_noise_scale);
+        let water_noise = noise * noise * noise * 128;
         let color = new p5.Vector(0, 0, 0);
         if (h < 0.2) {
           if (t > 0.5){
@@ -120,17 +129,24 @@ var s = function (p) {
           } else {
             color = coldLowWater;
           }
+          color = new p5.Vector(color.x + water_noise,color.y + water_noise, color.z + water_noise);
         } else if (h < 0.4) {
           if (t > 0.5){
             color = warmWater;
           } else {
             color = coldWater;
           }
+          color = new p5.Vector(color.x + water_noise,color.y + water_noise, color.z + water_noise);
+          
         } else if (t < 0.3 || h > 0.85) {
+          if (h < 0.7){
+            color = snowLowColor;
+          } else {
           color = snowColor;
+          }
         } else if ((h < 0.8 && h > 0.55) && (t < 0.55 && t > 0.4) && delta < 0.035){
           color = forestColor;
-        } else if ((delta > 0.035 && h > 0.6) || h > 0.8) {
+        } else if ((delta > 0.035 && h > 0.6) || h > 0.8 || b < 0.1) {
           color = mountainColor; 
         } else if (h < 0.5 || t > 0.9) {
           color = sandColor;
