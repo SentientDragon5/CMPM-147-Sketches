@@ -136,13 +136,8 @@ var s = function (p) {
         let water_noise = noise * noise * noise * 128;
 
         let light_dir = new p5.Vector(0.5, -1, 0.5);
-        //light_dir.normalize();
         let dot = light_dir.dot(normal);
         let normal_lighting_add = dot * 255 * 2;
-        let normal_lighting = new p5.Vector(dot, dot, dot);
-        // normal_lighting = light_dir;
-        // normal_lighting.mult(127);
-        // normal_lighting = p.addToVector(normal_lighting, 127);
 
         let color = new p5.Vector(0, 0, 0);
         if (h < 0.2) {
@@ -186,11 +181,6 @@ var s = function (p) {
           color = p.addToVector(color, water_noise * 0.8);
           color = p.addToVector(color, normal_lighting_add * 0.8);
         }
-
-        // debug normals
-        //color = new p5.Vector(normal.x * 127 + 127, normal.y * 127 + 127, normal.z * 127 + 127);
-        //color = new p5.Vector(h*255, h*255, h*255);
-        // color = new p5.Vector(normal_lighting.x,normal_lighting.y,normal_lighting.z);
         
         //p.fill(h*255, delta * 10*255,0);
         p.fill(color.x, color.y, color.z);
