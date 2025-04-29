@@ -165,6 +165,7 @@ var s = function (p) {
           color = p.addToVector(color, normal_lighting_add * 0.7);
         } else if ((h < 0.8 && h > 0.55) && (t < 0.55 && t > 0.4) && delta < 0.035) {
           color = forestColor;
+          color = p.addToVector(color, water_noise * 0.4);
           color = p.addToVector(color, normal_lighting_add);
         } else if ((delta > 0.035 && h > 0.6) || h > 0.8) {
           color = mountainColor;
