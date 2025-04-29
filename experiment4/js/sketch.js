@@ -106,55 +106,92 @@ var s = function (p) {
         let h = n.height; // Current pixel height
         let t = n.temperature;
         let b = n.biome;
+
         // curvature
         let delta = 0;
+        let normal = new p5.Vector(0, 0, 1); // Default normal vector
+
         try {
-          let neighbors = [
-            grid[`${i - 1},${j}`]?.height || h, // Top
-            grid[`${i + 1},${j}`]?.height || h, // Bottom
-            grid[`${i},${j - 1}`]?.height || h, // Left
-            grid[`${i},${j + 1}`]?.height || h, // Right
-          ];
+          let top = grid[`${i - 1},${j}`]?.height || h; // Top neighbor
+          let bottom = grid[`${i + 1},${j}`]?.height || h; // Bottom neighbor
+          let left = grid[`${i},${j - 1}`]?.height || h; // Left neighbor
+          let right = grid[`${i},${j + 1}`]?.height || h; // Right neighbor
 
+          // Calculate curvature delta
+          let neighbors = [top, bottom, left, right];
           delta = neighbors.reduce((sum, neighborHeight) => sum + Math.abs(h - neighborHeight), 0) / neighbors.length;
-        } catch (e) {}
 
-        let time = p.millis() /1000;
+          // Calculate gradients
+          let gradient_x = (right - left) / 2; // East-West gradient
+          let gradient_y = (bottom - top) / 2; // North-South gradient
+
+          // Set the normal vector
+          normal = new p5.Vector(-gradient_x, -gradient_y, 0);//.normalize(); // Normalize the vector
+        } catch (e) {
+          // Handle edge cases gracefully
+        }
+
+        let time = p.millis() / 1000;
         let noise = p.sampleNoise(i + time, j + time, water_noise_scale);
         let water_noise = noise * noise * noise * 128;
+
+        let light_dir = new p5.Vector(0.5, -1, 0.5);
+        //light_dir.normalize();
+        let dot = light_dir.dot(normal);
+        let normal_lighting_add = dot * 255 * 2;
+        let normal_lighting = new p5.Vector(dot, dot, dot);
+        // normal_lighting = light_dir;
+        // normal_lighting.mult(127);
+        // normal_lighting = p.addToVector(normal_lighting, 127);
+
         let color = new p5.Vector(0, 0, 0);
         if (h < 0.2) {
-          if (t > 0.5){
+          if (t > 0.5) {
             color = warmLowWater;
           } else {
             color = coldLowWater;
           }
-          color = new p5.Vector(color.x + water_noise,color.y + water_noise, color.z + water_noise);
+          color = p.addToVector(color, water_noise);
+          color = p.addToVector(color, normal_lighting_add * 0.7);
         } else if (h < 0.4) {
-          if (t > 0.5){
+          if (t > 0.5) {
             color = warmWater;
           } else {
             color = coldWater;
           }
-          color = new p5.Vector(color.x + water_noise,color.y + water_noise, color.z + water_noise);
-          
+          color = p.addToVector(color, water_noise);
+          color = p.addToVector(color, normal_lighting_add * 0.7);
         } else if (t < 0.3 || h > 0.85) {
-          if (h < 0.7){
+          if (h < 0.7) {
             color = snowLowColor;
           } else {
-          color = snowColor;
+            color = snowColor;
           }
-        } else if ((h < 0.8 && h > 0.55) && (t < 0.55 && t > 0.4) && delta < 0.035){
+          color = p.addToVector(color, normal_lighting_add * 0.7);
+        } else if ((h < 0.8 && h > 0.55) && (t < 0.55 && t > 0.4) && delta < 0.035) {
           color = forestColor;
+          color = p.addToVector(color, normal_lighting_add);
         } else if ((delta > 0.035 && h > 0.6) || h > 0.8) {
-          color = mountainColor; 
+          color = mountainColor;
+          color = p.addToVector(color, normal_lighting_add);
         } else if (h < 0.5 || t > 0.9) {
           color = sandColor;
+          color = p.addToVector(color, normal_lighting_add * 0.8);
         } else if (h < 0.6 || t < 0.5) {
           color = grassLowColor;
+          color = p.addToVector(color, water_noise * 0.8);
+          color = p.addToVector(color, normal_lighting_add * 0.8);
         } else {
           color = grassColor;
+          color = p.addToVector(color, water_noise * 0.8);
+          color = p.addToVector(color, normal_lighting_add * 0.8);
         }
+
+        // debug normals
+        //color = new p5.Vector(normal.x * 127 + 127, normal.y * 127 + 127, normal.z * 127 + 127);
+        //color = new p5.Vector(h*255, h*255, h*255);
+        // color = new p5.Vector(normal_lighting.x,normal_lighting.y,normal_lighting.z);
+        
         //p.fill(h*255, delta * 10*255,0);
         p.fill(color.x, color.y, color.z);
         p.noStroke();
@@ -163,6 +200,9 @@ var s = function (p) {
     }
   }
 
+  p.addToVector = function(v, add){
+    return new p5.Vector(v.x + add, v.y + add, v.z + add);
+  }
   // sample a 3 channel noise and get back an array of r g b 
   // values betwen 0 and 1
   p.sampleNoise = function(i, j, noise_scale){
