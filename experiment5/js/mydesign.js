@@ -21,14 +21,13 @@ function getInspirations() {
 }
 
 // this is the factor by which the scale sis applied
-const SCALE_FACTOR = 400;
+const SCALE = 0.5;
 // count of particles
-const COUNT = 4500;
+const COUNT = 3500;
 // This is the width/height divisor ratio of the radius of the dots
-const R_DIV = 70;
+const R_DIV = 60;
 
 function initDesign(inspiration) {
-  const SCALE = 1; //SCALE_FACTOR / inspiration.image.width;
   let canvasContainer = $(".image-container"); // Select the container using jQuery
   let canvasWidth = canvasContainer.width(); // Get the width of the container
   let aspectRatio = inspiration.image.height / inspiration.image.width;
@@ -72,7 +71,6 @@ function initDesign(inspiration) {
 
 function getImgColor(inspiration, box) {
   let img = inspiration.image;
-  const SCALE = 1; //SCALE_FACTOR / inspiration.image.width;
   img.loadPixels();
 
   // initialize color
